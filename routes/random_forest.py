@@ -1,16 +1,26 @@
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, UploadFile, HTTPException
 import pandas as pd
-from utils.model_utils import load_model, preprocess_data
+from utils.model_utils import train_and_save_model
+import io
 
 router = APIRouter()
 
-@router.post("/random_forest/predict/")
-async def predict_random_forest(file: UploadFile = File(...)):
-    contents = await file.read()
-    df = pd.read_csv(contents)
-    df = preprocess_data(df)
-    
-    model = load_model('random_forest')
-    predictions = model.predict(df)
-    
-    return {"predictions": predictions.tolist()}
+@router.post("/train/")
+async def train_random_forest(file: UploadFile = File(...)):
+    try:
+        contents = await file.read()
+        df = pd.read_csv(io.BytesIO(contents))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error reading CSV file: {e}")
+
+    try:
+        accuracy, predictions, X_test = train_and_save_model(df, 'random_forest')
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error training model: {e}")
+
+    return {
+        "message": "Model trained and saved successfully",
+        "accuracy": accuracy,
+        "predictions": predictions.tolist(),
+        "data": X_test.to_dict(orient='records')
+    }
