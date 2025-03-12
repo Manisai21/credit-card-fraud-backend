@@ -14,13 +14,12 @@ async def train_random_forest(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail=f"Error reading CSV file: {e}")
 
     try:
-        accuracy, predictions, X_test = train_and_save_model(df, 'random_forest')
+        accuracy, data_to_return, _ = train_and_save_model(df, 'random_forest')
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error training model: {e}")
 
     return {
         "message": "Model trained and saved successfully",
         "accuracy": accuracy,
-        "predictions": predictions.tolist(),
-        "data": X_test.to_dict(orient='records')
+        "data": data_to_return.to_dict(orient='records')
     }
