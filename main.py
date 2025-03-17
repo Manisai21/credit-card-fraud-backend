@@ -5,6 +5,7 @@ from routes.test_db import router as test_db_router
 from routes.logistic import router as logistic_router
 from routes.random_forest import router as random_forest_router
 from routes.xgboost import router as xgboost_router
+from routes.risk_score import router as risk_score_router
 
 
 app = FastAPI()
@@ -27,7 +28,7 @@ app.include_router(test_db_router)
 app.include_router(logistic_router, prefix="/logistic")
 app.include_router(random_forest_router, prefix="/random_forest")
 app.include_router(xgboost_router, prefix="/xgboost")
-
+app.include_router(risk_score_router, prefix="/risk")
 
 @app.get("/")
 def home():

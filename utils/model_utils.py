@@ -1,5 +1,3 @@
-# 
-
 import joblib
 import pandas as pd
 import numpy as np
@@ -37,7 +35,7 @@ def train_and_save_model(df, model_name):
         elif model_name == 'random_forest':
             model = RandomForestClassifier()
         elif model_name == 'xgboost':
-            model = XGBClassifier(use_label_encoder=False, eval_metric='logloss')
+            model = XGBClassifier(eval_metric='logloss')
         else:
             raise Exception("Model not supported")
 
@@ -70,7 +68,7 @@ def train_and_save_model(df, model_name):
         joblib.dump(model, f'models/{model_name}.pkl')
 
         # Select important columns to return
-        important_columns = ['Time', 'V1', 'V2', 'V3', 'V4']
+        important_columns = ['Time', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10']
         data_to_return = pd.DataFrame(X_test, columns=X.columns)[important_columns].copy()
         data_to_return['Prediction'] = predictions
 

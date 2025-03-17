@@ -28,6 +28,8 @@ from fastapi import APIRouter, File, UploadFile, HTTPException
 import pandas as pd
 from utils.model_utils import train_and_save_model
 import io
+from utils.email_utils import send_email  # Import the email utility
+import os  # Import os to access environment variables
 
 router = APIRouter()
 
@@ -43,7 +45,21 @@ async def train_xgboost(file: UploadFile = File(...)):
         result = train_and_save_model(df, 'xgboost')
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error training model: {e}")
+    # Filter for fraud predictions (where Prediction is 0)
+    fraud_data = result["data"]
+    fraud_predictions = fraud_data[fraud_data['Prediction'] == 0]
 
+    if not fraud_predictions.empty:
+        # Convert fraud predictions to a list of dictionaries
+        fraud_details = fraud_predictions.to_dict(orient='records')
+        
+        # Prepare email content
+        email_content = {
+            "subject": "Fraud Alert: Transactions Detected",
+            "body": f"The following transactions have been flagged as fraud:\n\n{fraud_details}",
+            "to": os.getenv("ADMIN_EMAIL", "manisaisaduvala21@gmail.com")  # Use the environment variable for the recipient
+        }
+        send_email(email_content)
     return {
         "message": "Model trained and saved successfully",
         "accuracy": result["accuracy"],
