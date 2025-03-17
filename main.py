@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import auth, login  # Import the login route
+from routes import auth, login, profile, contact# Import the login route
 from routes.test_db import router as test_db_router
 from routes.logistic import router as logistic_router
 from routes.random_forest import router as random_forest_router
@@ -20,7 +20,9 @@ app.add_middleware(
 
 # Register Routes
 app.include_router(auth.router, prefix="/auth")
-app.include_router(login.router, prefix="/auth")  # Add the login route
+app.include_router(login.router, prefix="/auth")
+app.include_router(profile.router)  
+app.include_router(contact.router)
 app.include_router(test_db_router)
 app.include_router(logistic_router, prefix="/logistic")
 app.include_router(random_forest_router, prefix="/random_forest")
