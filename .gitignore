@@ -1,0 +1,8 @@
+venv
+__pycache__/
+.env*
+models/logistic_regression.pkl
+models/random_forest.pkl
+models/xgboost.pkl
+models/autoencoder.h5
+models/isolation_forest.pkl
