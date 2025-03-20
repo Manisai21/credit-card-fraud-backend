@@ -10,5 +10,6 @@ class AuthUser(Base):
     phone_no = Column(String(15), nullable=False)  # Change to String
     loc = Column(String(45), nullable=False)
     password = Column(String(255), nullable=False)
+    reset_token = Column(String(255), nullable=True)
 
 Base.metadata.create_all(bind=engine)  # Create table if not exists
