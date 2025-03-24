@@ -21,22 +21,23 @@ async def train_isolation_forest(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error training model: {e}")
 
-    # Filter for fraud predictions (where Prediction is -1)
+    # Filter for fraud predictions (where Prediction is 1)
     fraud_data = result.get("data", None)  # Use get to avoid KeyError
 
     if fraud_data:
-        # Convert fraud predictions to a list of dictionaries
-        fraud_details = fraud_data
+        # Convert fraud predictions to a list of dictionaries where Prediction is 1
+        fraud_details = [record for record in fraud_data if record.get('Prediction') == 1]
     else:
         fraud_details = "N/A"  # Set to "N/A" if no fraud data
 
-    # Prepare email content
-    email_content = {
-        "subject": "Fraud Alert: Transactions Detected",
-        "body": f"The following transactions have been flagged as fraud:\n\n{fraud_details}",
-        "to": os.getenv("ADMIN_EMAIL", "manisaisaduvala21@gmail.com")  # Use the environment variable for the recipient
-    }
-    send_email(email_content)
+    if fraud_details != "N/A" and fraud_details:
+        # Prepare email content
+        email_content = {
+            "subject": "Fraud Alert: Transactions Detected",
+            "body": f"The following transactions have been flagged as fraud:\n\n{fraud_details}",
+            "to": os.getenv("ADMIN_EMAIL", "manisaisaduvala21@gmail.com")  # Use the environment variable for the recipient
+        }
+        send_email(email_content)
 
     # Return the exact structure from the utility function
     return {

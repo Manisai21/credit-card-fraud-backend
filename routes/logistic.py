@@ -27,9 +27,9 @@ async def train_logistic(file: UploadFile = File(...)):
     if "data" not in result:
         raise HTTPException(status_code=500, detail="Error: 'data' key not found in result")
 
-    # Filter for fraud predictions (where Prediction is 0)
+    # Filter for fraud predictions (where Prediction is 1)
     fraud_data = result["data"]
-    fraud_predictions = fraud_data[fraud_data['Prediction'] == 0]
+    fraud_predictions = fraud_data[fraud_data['Prediction'] == 1]
 
     if not fraud_predictions.empty:
         # Convert fraud predictions to a list of dictionaries

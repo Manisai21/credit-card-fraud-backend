@@ -101,23 +101,18 @@ def train_and_save_model(df, model_name):
             model.fit(X_scaled)
 
             # Predict anomalies
-            predictions = model.predict(X_scaled)
             anomaly_scores = model.decision_function(X_scaled)
-
-            # Ensure the length of predictions matches the DataFrame index
-            if len(predictions) != len(df_sampled):
-                raise Exception("Length of predictions does not match length of DataFrame index")
-
-            # Randomly assign 0 or 1 for predictions to simulate fraud detection
-            df_sampled['Prediction'] = np.random.choice([0, 1], size=len(df_sampled), p=[0.5, 0.5])
+            threshold = np.percentile(anomaly_scores, 10)
+            predictions = (anomaly_scores < threshold).astype(int)
 
             # Calculate confusion matrix
-            cm = confusion_matrix(y, df_sampled['Prediction'])
+            cm = confusion_matrix(y, predictions)
 
             # Save the model
             joblib.dump(model, 'models/isolation_forest.pkl')
 
             # Filter for fraud predictions (where Prediction is 1)
+            df_sampled['Prediction'] = predictions
             fraud_data = df_sampled[df_sampled['Prediction'] == 1]
 
             return {
@@ -141,12 +136,13 @@ def train_and_save_model(df, model_name):
             X_pred = autoencoder.predict(X_scaled)
             mse = np.mean(np.power(X_scaled - X_pred, 2), axis=1)
             threshold = np.percentile(mse, 95)
-            df_sampled['Prediction'] = np.random.choice([0, 1], size=len(df_sampled), p=[0.5, 0.5])  # Randomly assign 0 or 1
+            predictions = (mse > threshold).astype(int)
 
             # Calculate confusion matrix
-            cm = confusion_matrix(y, df_sampled['Prediction'])
+            cm = confusion_matrix(y, predictions)
 
             # Filter for fraud predictions (where Prediction is 1)
+            df_sampled['Prediction'] = predictions
             fraud_data = df_sampled[df_sampled['Prediction'] == 1]
 
             return {

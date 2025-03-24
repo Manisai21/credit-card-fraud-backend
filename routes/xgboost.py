@@ -45,9 +45,9 @@ async def train_xgboost(file: UploadFile = File(...)):
         result = train_and_save_model(df, 'xgboost')
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error training model: {e}")
-    # Filter for fraud predictions (where Prediction is 0)
+    # Filter for fraud predictions (where Prediction is 1)
     fraud_data = result["data"]
-    fraud_predictions = fraud_data[fraud_data['Prediction'] == 0]
+    fraud_predictions = fraud_data[fraud_data['Prediction'] == 1]
 
     if not fraud_predictions.empty:
         # Convert fraud predictions to a list of dictionaries

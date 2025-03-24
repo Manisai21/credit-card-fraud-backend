@@ -22,16 +22,13 @@ async def train_autoencoder(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Error training model: {e}")
 
     # Filter for fraud predictions (where Prediction is 1)
-    fraud_data = result["data"]
+    fraud_data = [record for record in result["data"] if record.get('Prediction') == 1]
 
     if fraud_data:
-        # Convert fraud predictions to a list of dictionaries
-        fraud_details = fraud_data
-
         # Prepare email content
         email_content = {
             "subject": "Fraud Alert: Transactions Detected",
-            "body": f"The following transactions have been flagged as fraud:\n\n{fraud_details}",
+            "body": f"The following transactions have been flagged as fraud:\n\n{fraud_data}",
             "to": os.getenv("ADMIN_EMAIL", "manisaisaduvala21@gmail.com")  # Use the environment variable for the recipient
         }
         send_email(email_content)
